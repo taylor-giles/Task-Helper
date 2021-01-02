@@ -23,7 +23,7 @@ public class Task {
         this.entries = new ArrayList<>(entries);
     }
 
-
+    //Getters and setters
     public ArrayList<TaskEntry> getEntries() {
         return entries;
     }
@@ -55,6 +55,5 @@ public class Task {
                 ((this.name.equals(((Task) obj).getName())) &&
                         (this.color == ((Task) obj).getColor()));
     }
-
 
 }
