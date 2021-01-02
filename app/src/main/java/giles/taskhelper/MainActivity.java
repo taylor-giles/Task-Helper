@@ -105,7 +105,7 @@ public class MainActivity extends AppCompatActivity {
       return (ArrayList<Task>) loadFromFile(tasksFile);
     } catch(ClassCastException e) {
       Toast.makeText(this, "Error processing data from file", Toast.LENGTH_SHORT).show();
-      return null;
+      return new ArrayList<Task>();
     }
   }
 
