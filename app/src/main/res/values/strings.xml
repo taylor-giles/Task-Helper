@@ -5,8 +5,9 @@
     <string name="hello_blank_fragment">Hello blank fragment</string>
     <string name="label_color">Color:</string>
     <string name="hours">Hours</string>
-    <string name="minutes">Minutes</string>
+    <string name="mins">Minutes</string>
     <string name="label_weekly_goal">Weekly Goal:</string>
     <string name="request_name">Enter a name</string>
     <string name="label_task_name">Task Name:</string>
+    <string name="finish">Finish</string>
 </resources>

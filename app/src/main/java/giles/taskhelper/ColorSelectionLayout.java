@@ -2,7 +2,6 @@ package giles.taskhelper;
 
 import android.content.Context;
 import android.support.v4.content.ContextCompat;
-import android.util.Log;
 import android.view.View;
 import android.widget.LinearLayout;
 import android.widget.Space;
@@ -10,6 +9,7 @@ import android.widget.Space;
 import java.util.ArrayList;
 
 public class ColorSelectionLayout extends LinearLayout {
+  public static final int ERROR = -1;
   public final int RED = ContextCompat.getColor(this.getContext(), R.color.red_custom);
   public final int DEEP_ORANGE = ContextCompat.getColor(this.getContext(), R.color.deep_orange_600);
   public final int ORANGE = ContextCompat.getColor(this.getContext(), R.color.orange_600);
@@ -131,6 +131,21 @@ public class ColorSelectionLayout extends LinearLayout {
   }
   public ArrayList<ColorView> getColorViews() {
     return colorViews;
+  }
+  public ColorView getSelectedView(){
+    for(ColorView view : colorViews){
+      if(view.isSelected()){
+        return view;
+      }
+    }
+    return null;
+  }
+  public int getSelectedColor(){
+    if(getSelectedView() == null){
+      return ERROR;
+    } else {
+      return getSelectedView().getColor();
+    }
   }
 
   //Inner ColorView class
