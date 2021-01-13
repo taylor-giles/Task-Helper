@@ -7,6 +7,7 @@ import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
+import android.widget.LinearLayout;
 import android.widget.Toast;
 
 import java.io.FileInputStream;
@@ -28,6 +29,8 @@ public class MainActivity extends AppCompatActivity {
 
   //Data
   private List<Task> tasks = new ArrayList<>();
+  private List<TaskView> taskViews = new ArrayList<>();
+  private TimeFilter currentFilter = new TimeFilter(TimeFilter.ONE_WEEK);
 
   @Override
   protected void onCreate(Bundle savedInstanceState) {
@@ -44,9 +47,16 @@ public class MainActivity extends AppCompatActivity {
       if(resultCode == Activity.RESULT_OK) {
         //Add new task
         if (requestCode == ADD_TASK_REQUEST) {
-          tasks.add(new Task(data.getStringExtra("name"),
+          //Build and add new task
+          Task newTask = new Task(data.getStringExtra("name"),
                   data.getIntExtra("color", ContextCompat.getColor(this, R.color.grey_600)),
-                  new Goal(data.getIntExtra("goalType", Goal.NONE), data.getIntExtra("goalMinutes", 0))));
+                  new TaskGoal(data.getIntExtra("goalType", TaskGoal.NONE), data.getIntExtra("goalMinutes", 0)));
+          tasks.add(newTask);
+
+          //Build and add new TaskView
+          TaskView newView = new TaskView(this, newTask, currentFilter);
+          taskViews.add(newView);
+          ((LinearLayout)findViewById(R.id.layout_scroll_main)).addView(newView);
         }
       }
     }

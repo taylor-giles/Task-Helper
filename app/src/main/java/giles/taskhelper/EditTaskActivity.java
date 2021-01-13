@@ -4,7 +4,6 @@ import android.app.Activity;
 import android.content.Intent;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.View;
 import android.widget.LinearLayout;
 import android.widget.NumberPicker;
@@ -43,15 +42,15 @@ public class EditTaskActivity extends AppCompatActivity {
       } else {
         //Send data back to main activity
         Intent returnIntent = new Intent();
-        returnIntent.putExtra("name", nameView.getText());
+        returnIntent.putExtra("name", nameView.getText().toString());
         returnIntent.putExtra("color", selectionLayout.getSelectedColor());
 
-        //Goal data
-        returnIntent.putExtra("goalType", Goal.NONE);
+        //TaskGoal data
+        returnIntent.putExtra("goalType", TaskGoal.NONE);
         if(findViewById(R.id.radio_greater).isSelected()){
-          returnIntent.putExtra("goalType", Goal.MORE);
+          returnIntent.putExtra("goalType", TaskGoal.MORE);
         } else if(findViewById(R.id.radio_less).isSelected()){
-          returnIntent.putExtra("goalType", Goal.LESS);
+          returnIntent.putExtra("goalType", TaskGoal.LESS);
         }
         returnIntent.putExtra("goalMinutes", hoursPicker.getValue() * 60 + minutesPicker.getValue());
 

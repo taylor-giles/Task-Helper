@@ -1,6 +1,6 @@
 package giles.taskhelper;
 
-public class Goal {
+public class TaskGoal {
   public static final int NONE = 0;
   public static final int MORE = 1;
   public static final int LESS = -1;
@@ -8,13 +8,13 @@ public class Goal {
   private int type = NONE;
   private int mins = 0;
 
-  public Goal(){ }
+  public TaskGoal(){ }
 
-  public Goal(int type, int minutes) {
+  public TaskGoal(int type, int minutes) {
     if (type == NONE || type == MORE || type == LESS) {
       this.type = type;
     } else {
-      throw new IllegalArgumentException("Type must be one of Goal.NONE, Goal.MORE, Goal.LESS");
+      throw new IllegalArgumentException("Type must be one of TaskGoal.NONE, TaskGoal.MORE, TaskGoal.LESS");
     }
 
     if (minutes >= 0) {
