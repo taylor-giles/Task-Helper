@@ -1,6 +1,8 @@
 package giles.taskhelper;
 
-public class TaskGoal {
+import java.io.Serializable;
+
+public class TaskGoal implements Serializable {
   public static final int NONE = 0;
   public static final int MORE = 1;
   public static final int LESS = -1;

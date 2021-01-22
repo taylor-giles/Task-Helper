@@ -18,18 +18,20 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
-public class MainActivity extends AppCompatActivity implements LogTimeDialog.LogTimeDialogListener, DatePickerDialog.DatePickerDialogListener {
+public class MainActivity extends AppCompatActivity {
   //Files
   private static final String TASKS_FILE = "tasks.obj";
 
   //Request codes
   public static final int ADD_TASK_REQUEST = 1;
   public static final int EDIT_TASK_REQUEST = 2;
+  public static final int LOG_TIME_REQUEST = 3;
 
   //Data
-  private List<Task> tasks = new ArrayList<>();
+  private ArrayList<Task> tasks = new ArrayList<>();
   private List<TaskView> taskViews = new ArrayList<>();
   private TimeFilter currentFilter = new TimeFilter(TimeFilter.ONE_WEEK);
 
@@ -45,7 +47,7 @@ public class MainActivity extends AppCompatActivity implements LogTimeDialog.Log
 
     //Log Time button
     logButton = findViewById(R.id.button_log_time);
-    logButton.setOnClickListener(v -> openLogDialog(null));
+    logButton.setOnClickListener(v -> openLogActivity(null));
     if(tasks.isEmpty()){
       logButton.setVisibility(View.GONE);
     }
@@ -68,6 +70,7 @@ public class MainActivity extends AppCompatActivity implements LogTimeDialog.Log
     super.onActivityResult(requestCode, resultCode, data);
     if (resultCode != Activity.RESULT_CANCELED){
       if(resultCode == Activity.RESULT_OK) {
+
         //Add new task
         if (requestCode == ADD_TASK_REQUEST) {
           //Build and add new task
@@ -75,7 +78,6 @@ public class MainActivity extends AppCompatActivity implements LogTimeDialog.Log
                   data.getIntExtra("color", ContextCompat.getColor(this, R.color.grey_600)),
                   new TaskGoal(data.getIntExtra("goalType", TaskGoal.NONE), data.getIntExtra("goalMinutes", 0)));
           tasks.add(newTask);
-
           saveToFile(TASKS_FILE, tasks);
 
           //Build and add new TaskView
@@ -85,6 +87,16 @@ public class MainActivity extends AppCompatActivity implements LogTimeDialog.Log
 
           //There is at least one task now, so show log button
           logButton.setVisibility(View.VISIBLE);
+        } else
+          //Log time for a task
+          if (requestCode == LOG_TIME_REQUEST){
+            //Find the task, date, and time
+            Task task = (Task)data.getSerializableExtra("task");
+            Date date = new Date(data.getLongExtra("dateMillis", System.currentTimeMillis()));
+            int duration = data.getIntExtra("time", 0);
+
+            //Make the entry and associate it with task
+            task.addEntry(new TaskEntry(task, date, duration));
         }
       }
     }
@@ -102,11 +114,15 @@ public class MainActivity extends AppCompatActivity implements LogTimeDialog.Log
 
 
   /**
-   * Opens a LogTimeDialog to log time for a task
+   * Opens a LogTimeActivity to log time for a task
    */
-  public void openLogDialog(Task task){
-    LogTimeDialog dialog = LogTimeDialog.newInstance((ArrayList<Task>)tasks, task);
-    dialog.show(getSupportFragmentManager(), "log time");
+  public void openLogActivity(Task task){
+    Intent openLog = new Intent(this, LogTimeActivity.class);
+    if(task != null) {
+      openLog.putExtra("task", task);
+    }
+    openLog.putExtra("tasks", tasks);
+    startActivityForResult(openLog, LOG_TIME_REQUEST);
   }
 
 
@@ -168,28 +184,5 @@ public class MainActivity extends AppCompatActivity implements LogTimeDialog.Log
       Toast.makeText(this, "Error processing data from file", Toast.LENGTH_SHORT).show();
       return new ArrayList<>();
     }
-  }
-
-
-  /**
-   * Adds the specified amount of time spent to the specified task
-   * @param task The <code>Task</code> of interest
-   * @param minutesLogged The amount of time, in minutes, to add to the given <code>Task</code>
-   */
-  @Override
-  public void applyLogTime(Task task, int minutesLogged) {
-    task.addTime(minutesLogged);
-
-    //Update the necessary view
-    for(TaskView view : taskViews){
-      if(view.getTask().equals(task)){
-        view.update();
-      }
-    }
-  }
-
-  @Override
-  public void applyDate(long date) {
-
   }
 }

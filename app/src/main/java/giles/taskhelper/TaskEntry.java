@@ -1,9 +1,10 @@
 package giles.taskhelper;
 
+import java.io.Serializable;
 import java.util.Calendar;
 import java.util.Date;
 
-class TaskEntry {
+public class TaskEntry implements Serializable {
     private Task task;
     private Date date;
     private int duration; //The amount of time represented by this entry, in minutes

@@ -10,4 +10,5 @@
     <string name="request_name">Enter a name</string>
     <string name="label_task_name">Task Name:</string>
     <string name="finish">Finish</string>
+    <string name="date">Date</string>
 </resources>

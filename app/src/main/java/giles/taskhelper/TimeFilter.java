@@ -1,5 +1,6 @@
 package giles.taskhelper;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
@@ -10,7 +11,7 @@ import java.util.function.Predicate;
  * A <code>Predicate</code> that filters for <code>TaskEntry</code>s that represent entries made
  * within the time period specified by this filter
  */
-public class TimeFilter implements Predicate<TaskEntry> {
+public class TimeFilter implements Predicate<TaskEntry>, Serializable {
   public static final int ALL_TIME = -1;
   public static final int TODAY = 0;
   public static final int ONE_WEEK = 7;

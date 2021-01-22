@@ -199,7 +199,7 @@
             android:background="?attr/colorButtonNormal" />
 
         <Button
-            android:id="@+id/button_edit_finish"
+            android:id="@+id/button_log_finish"
             style="@style/Widget.AppCompat.Button.Borderless.Colored"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
