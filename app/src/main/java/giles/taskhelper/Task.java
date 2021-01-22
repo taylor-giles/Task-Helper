@@ -2,11 +2,12 @@ package giles.taskhelper;
 
 import android.support.annotation.Nullable;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.stream.Collectors;
 
-public class Task {
+public class Task implements Serializable {
   private String name;
   private int color;
   private ArrayList<TaskEntry> entries;
@@ -28,10 +29,6 @@ public class Task {
     this.entries = new ArrayList<>(entries);
   }
 
-  //Getters and setters
-  public ArrayList<TaskEntry> getAllEntries() {
-    return entries;
-  }
 
   /**
    * Returns a list of all the <code>TaskEntry</code>s that fit within the given time filter
@@ -42,6 +39,7 @@ public class Task {
     return (ArrayList<TaskEntry>) entries.stream().filter(filter).collect(Collectors.toList());
   }
 
+
   /**
    * Returns a list of all the <code>TaskEntry</code>s that occurred on the given <code>Date</code>
    * @param date The <code>Date</code> of interest
@@ -51,37 +49,15 @@ public class Task {
     return (ArrayList<TaskEntry>) entries.stream().filter(new TimeFilter(date, date)).collect(Collectors.toList());
   }
 
-  public void setEntries(ArrayList<TaskEntry> entries) {
-    this.entries = entries;
-  }
 
-  public String getName() {
-    return name;
-  }
-
-  public void setName(String name) {
-    this.name = name;
-  }
-
-  public int getColor() {
-    return color;
-  }
-
-  public void setColor(int color) {
-    this.color = color;
-  }
-
-  public TaskGoal getGoal() {
-    return goal;
-  }
-
-  public void setGoal(TaskGoal goal) {
-    this.goal = goal;
-  }
-
+  /**
+   * Determines the total amount of time spent on this task since its creation
+   * @return The amount of time spent on this task
+   */
   public long getTotalTimeSpent(){
     return getTimeSpent(new TimeFilter(TimeFilter.ALL_TIME));
   }
+
 
   /**
    * Determines the amount of time spent on this task during the period specified by the given
@@ -89,17 +65,54 @@ public class Task {
    * @param filter The <code>TimeFilter</code> that dictates the period of interest
    * @return The amount of time, in minutes, spent on this task
    */
-  public long getTimeSpent(TimeFilter filter){
-    long sum = 0;
+  public int getTimeSpent(TimeFilter filter){
+    int sum = 0;
     for(TaskEntry entry : entries.stream().filter(filter).collect(Collectors.toList())){
       sum += entry.getDuration();
     }
     return sum;
   }
 
-  public long getTimeSpent(Date date){
+
+  /**
+   * Determines the amount of time spent on this task during the specified <code>Date</code>
+   * @param date The <code>Date</code> of interest
+   * @return The amount of time spent on this task during the given <code>Date</code>
+   */
+  public int getTimeSpent(Date date){
     return getTimeSpent(new TimeFilter(date, 1));
   }
+
+
+  /**
+   * Creates a new <code>TaskEntry</code> to associate with this task with the specified
+   * amount of time
+   * @param minutes The number of minutes to add to the time spent on this task
+   */
+  public void addTime(int minutes){
+    entries.add(new TaskEntry(this, new Date(), minutes));
+  }
+
+
+  /**
+   * Creates a new <code>TaskEntry</code> to associate with this task with the specified
+   * date and amount of time
+   * @param date The data to apply to the new <code>TaskEntry</code>
+   * @param minutes The number of minutes to add to the time spent on this task
+   */
+  public void addTime(Date date, int minutes){
+    entries.add(new TaskEntry(this, date, minutes));
+  }
+
+
+  /**
+   * Adds a new <code>TaskEntry</code> to associate with this task
+   * @param entry The entry to add to this task
+   */
+  public void addEntry(TaskEntry entry){
+    entries.add(entry);
+  }
+
 
   @Override
   public boolean equals(@Nullable Object obj) {
@@ -108,4 +121,29 @@ public class Task {
                     (this.color == ((Task) obj).getColor()));
   }
 
+  //Getters and setters
+  public ArrayList<TaskEntry> getAllEntries() {
+    return entries;
+  }
+  public void setEntries(ArrayList<TaskEntry> entries) {
+    this.entries = entries;
+  }
+  public String getName() {
+    return name;
+  }
+  public void setName(String name) {
+    this.name = name;
+  }
+  public int getColor() {
+    return color;
+  }
+  public void setColor(int color) {
+    this.color = color;
+  }
+  public TaskGoal getGoal() {
+    return goal;
+  }
+  public void setGoal(TaskGoal goal) {
+    this.goal = goal;
+  }
 }

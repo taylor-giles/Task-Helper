@@ -149,7 +149,7 @@ public class ColorSelectionLayout extends LinearLayout {
   }
 
   //Inner ColorView class
-  public class ColorView extends View {
+  private class ColorView extends View {
     private int color;
     private boolean isSelected = false;
     private LayoutParams params = new LayoutParams(0, 0);

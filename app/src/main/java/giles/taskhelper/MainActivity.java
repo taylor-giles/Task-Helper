@@ -7,6 +7,7 @@ import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
+import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.Toast;
 
@@ -19,7 +20,7 @@ import java.io.ObjectOutputStream;
 import java.util.ArrayList;
 import java.util.List;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements LogTimeDialog.LogTimeDialogListener, DatePickerDialog.DatePickerDialogListener {
   //Files
   private static final String TASKS_FILE = "tasks.obj";
 
@@ -32,12 +33,34 @@ public class MainActivity extends AppCompatActivity {
   private List<TaskView> taskViews = new ArrayList<>();
   private TimeFilter currentFilter = new TimeFilter(TimeFilter.ONE_WEEK);
 
+  //Layout elements
+  private ImageButton logButton;
+
   @Override
   protected void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
     tasks = loadTasks();
     setContentView(R.layout.activity_main);
     setVisible(true);
+
+    //Log Time button
+    logButton = findViewById(R.id.button_log_time);
+    logButton.setOnClickListener(v -> openLogDialog(null));
+    if(tasks.isEmpty()){
+      logButton.setVisibility(View.GONE);
+    }
+  }
+
+  @Override
+  protected void onResume() {
+    super.onResume();
+
+    //Hide log button if and only if there are no tasks
+    if(tasks.isEmpty()){
+      logButton.setVisibility(View.GONE);
+    } else {
+      logButton.setVisibility(View.VISIBLE);
+    }
   }
 
   @Override
@@ -53,10 +76,15 @@ public class MainActivity extends AppCompatActivity {
                   new TaskGoal(data.getIntExtra("goalType", TaskGoal.NONE), data.getIntExtra("goalMinutes", 0)));
           tasks.add(newTask);
 
+          saveToFile(TASKS_FILE, tasks);
+
           //Build and add new TaskView
           TaskView newView = new TaskView(this, newTask, currentFilter);
           taskViews.add(newView);
           ((LinearLayout)findViewById(R.id.layout_scroll_main)).addView(newView);
+
+          //There is at least one task now, so show log button
+          logButton.setVisibility(View.VISIBLE);
         }
       }
     }
@@ -70,6 +98,15 @@ public class MainActivity extends AppCompatActivity {
   public void openEditToAdd(View view){
     Intent openEdit = new Intent(this, EditTaskActivity.class);
     startActivityForResult(openEdit, ADD_TASK_REQUEST);
+  }
+
+
+  /**
+   * Opens a LogTimeDialog to log time for a task
+   */
+  public void openLogDialog(Task task){
+    LogTimeDialog dialog = LogTimeDialog.newInstance((ArrayList<Task>)tasks, task);
+    dialog.show(getSupportFragmentManager(), "log time");
   }
 
 
@@ -131,5 +168,28 @@ public class MainActivity extends AppCompatActivity {
       Toast.makeText(this, "Error processing data from file", Toast.LENGTH_SHORT).show();
       return new ArrayList<>();
     }
+  }
+
+
+  /**
+   * Adds the specified amount of time spent to the specified task
+   * @param task The <code>Task</code> of interest
+   * @param minutesLogged The amount of time, in minutes, to add to the given <code>Task</code>
+   */
+  @Override
+  public void applyLogTime(Task task, int minutesLogged) {
+    task.addTime(minutesLogged);
+
+    //Update the necessary view
+    for(TaskView view : taskViews){
+      if(view.getTask().equals(task)){
+        view.update();
+      }
+    }
+  }
+
+  @Override
+  public void applyDate(long date) {
+
   }
 }

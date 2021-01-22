@@ -19,7 +19,6 @@ import com.github.mikephil.charting.formatter.ValueFormatter;
 
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.Date;
 import java.util.GregorianCalendar;
 
 public class TaskView extends LinearLayout {
@@ -48,56 +47,57 @@ public class TaskView extends LinearLayout {
     expandedContent.setLayoutParams(new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT));
     expandedContent.setOrientation(VERTICAL);
     barChart = new BarChart(context);
-    barChart.setLayoutParams(new LayoutParams(LayoutParams.MATCH_PARENT, 1000));
+    barChart.setLayoutParams(new LayoutParams(LayoutParams.MATCH_PARENT, 800));
+
+    Space space = new Space(context);
+    space.setLayoutParams(new LayoutParams(LayoutParams.MATCH_PARENT, 50));
+
+    View divider = new View(context);
+    divider.setLayoutParams(new LayoutParams(LayoutParams.MATCH_PARENT, 1));
+    divider.setBackgroundColor(ContextCompat.getColor(context, android.R.color.darker_gray));
+
+    expandedContent.addView(space);
     expandedContent.addView(barChart);
 
     collapse();
     update();
+    addView(divider);
     addView(header);
     addView(expandedContent);
   }
 
-  private void expand(){
+  public void expand(){
     header.getExpandButton().setVisibility(View.GONE);
     header.getCollapseButton().setVisibility(View.VISIBLE);
     expandedContent.setVisibility(View.VISIBLE);
   }
 
-  private void collapse(){
+  public void collapse(){
     header.getExpandButton().setVisibility(View.VISIBLE);
     header.getCollapseButton().setVisibility(View.GONE);
     expandedContent.setVisibility(View.GONE);
   }
 
-  private void update(){
+  public void update(){
     header.update();
     ArrayList<BarEntry> barEntries = new ArrayList<>();
 
-    //Update bar chart with task data from each day
-    for(Date date : filter.getDates()){
-      barEntries.add(new BarEntry(date.getTime(), task.getTimeSpent(date)));
+    //Update bar chart with index of task data from each day
+    //NOTE - use index so that labels are aligned properly. Labeling is handled below
+    for(int i = 0; i < filter.getDates().size(); i++){
+      barEntries.add(new BarEntry(i, task.getTimeSpent(filter.getDates().get(i))));
     }
     BarDataSet barData = new BarDataSet(barEntries, "Time Spent on " + task.getName());
     barData.setColor(task.getColor());
     barChart.setData(new BarData(barData));
-    barChart.getXAxis().setLabelCount(barData.getValues().size());
-    barChart.getXAxis().setLabelRotationAngle(-30); //Rotate x-axis labels
+    barChart.getDescription().setEnabled(false); //Disable bottom-right description text
 
-    //Set Y-Axis labels
-    barChart.getAxisLeft().setDrawLabels(false);
-    barChart.getAxisRight().setValueFormatter(new ValueFormatter() {
-      @Override
-      public String getFormattedValue(float value) {
-        return ((int)value) + " mins";
-      }
-    });
-
-    //Format x-values as dates
+    //Format X-Axis labels as dates
     barChart.getXAxis().setValueFormatter(new ValueFormatter() {
       @Override
       public String getFormattedValue(float value) {
         Calendar cal = new GregorianCalendar();
-        cal.setTime(new Date((long)value));
+        cal.setTime(filter.getDates().get((int)value));
         StringBuilder output = new StringBuilder();
         switch(cal.get(Calendar.DAY_OF_WEEK)){
           case Calendar.SUNDAY: output.append("Sun, "); break;
@@ -116,6 +116,23 @@ public class TaskView extends LinearLayout {
         return output.toString();
       }
     });
+    barChart.getXAxis().setLabelCount(barData.getValues().size());
+    barChart.getXAxis().setLabelRotationAngle(-30); //Rotate x-axis labels
+
+    //Set Y-Axis labels
+    barChart.getAxisRight().setDrawLabels(false);
+    barChart.getAxisLeft().setValueFormatter(new ValueFormatter() {
+      @Override
+      public String getFormattedValue(float value) {
+        StringBuilder output = new StringBuilder();
+        if((int)(value / 60) > 0){
+          output.append((int) (value / 60)).append("h ");
+        }
+        output.append((int)(value) % 60).append("m");
+        return output.toString();
+      }
+    });
+    barChart.getAxisLeft().setAxisMinimum(0);
   }
 
   public TimeFilter getFilter() {
@@ -125,6 +142,10 @@ public class TaskView extends LinearLayout {
   public void setFilter(TimeFilter filter) {
     this.filter = filter;
     header.setFilter(filter);
+  }
+
+  public Task getTask(){
+    return task;
   }
 
 
@@ -218,6 +239,7 @@ public class TaskView extends LinearLayout {
       return filter;
     }
 
+
     /**
      * Sets the time filter and updates the time view
      * @param filter The new <code>TimeFilter</code> to implement
@@ -237,8 +259,9 @@ public class TaskView extends LinearLayout {
     public void update(){
       taskLabel.setText(task.getName());
       taskLabel.setTextColor(task.getColor());
-      long timeSpent = task.getTimeSpent(filter);
-      timeDisplay.setText(((int)(timeSpent / 60)) + "h " + ((int)(timeSpent % 60)) + "m ");
+      int timeSpent = task.getTimeSpent(filter);
+      timeDisplay.setText(timeSpent / 60 + "h " + timeSpent % 60 + "m ");
+      invalidate();
     }
   }
 }

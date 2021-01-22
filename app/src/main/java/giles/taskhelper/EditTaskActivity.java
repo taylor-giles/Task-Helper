@@ -13,22 +13,16 @@ import android.widget.Toast;
 public class EditTaskActivity extends AppCompatActivity {
 
   private ColorSelectionLayout selectionLayout;
-  private NumberPicker hoursPicker;
-  private NumberPicker minutesPicker;
+  private TimeSelectionLayout timeSelector;
 
   @Override
   protected void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
     setContentView(R.layout.activity_edit_task);
-    selectionLayout = new ColorSelectionLayout(this);
+    timeSelector = findViewById(R.id.time_selection_edit);
 
-    //Set range for pickers
-    hoursPicker = findViewById(R.id.picker_hours);
-    minutesPicker = findViewById(R.id.picker_mins);
-    hoursPicker.setMaxValue(23);
-    hoursPicker.setMinValue(0);
-    minutesPicker.setMaxValue(59);
-    minutesPicker.setMinValue(0);
+    //Add ColorSelectionLayout
+    selectionLayout = new ColorSelectionLayout(this);
     ((LinearLayout)findViewById(R.id.layout_color)).addView(selectionLayout);
   }
 
@@ -52,7 +46,7 @@ public class EditTaskActivity extends AppCompatActivity {
         } else if(findViewById(R.id.radio_less).isSelected()){
           returnIntent.putExtra("goalType", TaskGoal.LESS);
         }
-        returnIntent.putExtra("goalMinutes", hoursPicker.getValue() * 60 + minutesPicker.getValue());
+        returnIntent.putExtra("goalMinutes", timeSelector.getHours() * 60 + timeSelector.getMinutes());
 
         //Return to main activity
         setResult(Activity.RESULT_OK, returnIntent);

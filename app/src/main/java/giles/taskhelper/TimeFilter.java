@@ -34,8 +34,8 @@ public class TimeFilter implements Predicate<TaskEntry> {
    * @param numDays The number days into the past that this filter should span, including today
    */
   public TimeFilter(int numDays){
-    //Set latest to right now
-    this.latest = new Date(System.currentTimeMillis());
+    //Set latest to this time tomorrow (to include all of today)
+    this.latest = new Date(System.currentTimeMillis() + MILLIS_IN_DAY);
 
     //Set earliest to midnight on desired day
     if(numDays == ALL_TIME){

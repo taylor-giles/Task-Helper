@@ -95,13 +95,14 @@
                 android:id="@+id/layout_goal"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:gravity="center"
                 android:orientation="vertical"
                 android:paddingTop="16dp"
                 android:paddingBottom="16dp">
 
                 <TextView
                     android:id="@+id/label_weekly_goal"
-                    android:layout_width="wrap_content"
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:text="@string/label_weekly_goal"
                     android:textColor="@android:color/black"
@@ -135,68 +136,12 @@
                         android:text="No goal" />
                 </RadioGroup>
 
-                <LinearLayout
-                    android:id="@+id/layout_pickers"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="horizontal">
+                <giles.taskhelper.TimeSelectionLayout
+                    android:id="@+id/time_selection_edit"
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent">
 
-                    <Space
-                        android:layout_width="0dp"
-                        android:layout_height="match_parent"
-                        android:layout_weight="3" />
-
-                    <LinearLayout
-                        android:id="@+id/layout_hours"
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="3"
-                        android:gravity="center"
-                        android:orientation="vertical">
-
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="@string/hours" />
-
-                        <NumberPicker
-                            android:id="@+id/picker_hours"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:clickable="false"
-                            android:orientation="vertical" />
-                    </LinearLayout>
-
-                    <Space
-                        android:layout_width="0dp"
-                        android:layout_height="match_parent"
-                        android:layout_weight="1" />
-
-                    <LinearLayout
-                        android:id="@+id/layout_mins"
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="3"
-                        android:gravity="center"
-                        android:orientation="vertical">
-
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="@string/mins" />
-
-                        <NumberPicker
-                            android:id="@+id/picker_mins"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content" />
-                    </LinearLayout>
-
-                    <Space
-                        android:layout_width="0dp"
-                        android:layout_height="match_parent"
-                        android:layout_weight="3" />
-
-                </LinearLayout>
+                </giles.taskhelper.TimeSelectionLayout>
             </LinearLayout>
 
             <View
@@ -261,6 +206,7 @@
             android:layout_weight="1"
             android:onClick="done"
             android:text="@string/finish" />
+
     </LinearLayout>
 
 </LinearLayout>

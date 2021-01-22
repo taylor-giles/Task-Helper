@@ -6,7 +6,7 @@ import java.util.Date;
 class TaskEntry {
     private Task task;
     private Date date;
-    private long duration; //The amount of time represented by this entry, in minutes
+    private int duration; //The amount of time represented by this entry, in minutes
 
     public TaskEntry(Task task){
         this.task = task;
@@ -18,7 +18,7 @@ class TaskEntry {
         this.date = date;
     }
 
-    public TaskEntry(Task task, Date date, long duration){
+    public TaskEntry(Task task, Date date, int duration){
         this.task = task;
         this.date = date;
         this.duration = duration;
@@ -44,7 +44,7 @@ class TaskEntry {
         return duration;
     }
 
-    public void setDuration(long duration) {
+    public void setDuration(int duration) {
         this.duration = duration;
     }
 
@@ -52,15 +52,15 @@ class TaskEntry {
      * Returns the number of hours represented by this <code>TaskEntry</code>
      * @return The number of hours represented by this <code>TaskEntry</code>
      */
-    public long getHours(){
-        return (int)(duration / 60);
+    public int getHours(){
+        return (duration / 60);
     }
 
     /**
      * Returns the number of minutes left over after hours calculation
      * @return The number of minutes left over after hours calculation
      */
-    public long getMinutes(){
+    public int getMinutes(){
         return duration - (60 * getHours());
     }
 }
