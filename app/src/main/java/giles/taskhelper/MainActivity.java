@@ -6,6 +6,7 @@ import android.content.Intent;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
@@ -19,7 +20,7 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.List;
+import java.util.HashMap;
 
 public class MainActivity extends AppCompatActivity {
   //Files
@@ -31,19 +32,27 @@ public class MainActivity extends AppCompatActivity {
   public static final int LOG_TIME_REQUEST = 3;
 
   //Data
-  private ArrayList<Task> tasks = new ArrayList<>();
-  private List<TaskView> taskViews = new ArrayList<>();
+  private ArrayList<Task> tasks = new ArrayList<>(); //Necessary for reading/writing files
+  private HashMap<String, TaskView> taskViews = new HashMap<>(); //Stores all TaskViews as values associated with the name of their Task
   private TimeFilter currentFilter = new TimeFilter(TimeFilter.ONE_WEEK);
 
   //Layout elements
   private ImageButton logButton;
+  private LinearLayout scrollLayout;
 
   @Override
   protected void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
-    tasks = loadTasks();
     setContentView(R.layout.activity_main);
     setVisible(true);
+    scrollLayout = findViewById(R.id.layout_scroll_main);
+
+    //Set up tasks and TaskViews
+    tasks = loadTasks();
+    for(Task task : tasks){
+      TaskView view = new TaskView(this, task, currentFilter);
+      addTaskView(task, view);
+    }
 
     //Log Time button
     logButton = findViewById(R.id.button_log_time);
@@ -70,33 +79,42 @@ public class MainActivity extends AppCompatActivity {
     super.onActivityResult(requestCode, resultCode, data);
     if (resultCode != Activity.RESULT_CANCELED){
       if(resultCode == Activity.RESULT_OK) {
+        switch(requestCode){
+          //Add new task
+          case ADD_TASK_REQUEST:
+            //Build and add new task
+            Task newTask = new Task(data.getStringExtra("name"),
+                    data.getIntExtra("color", ContextCompat.getColor(this, R.color.grey_600)),
+                    new TaskGoal(data.getIntExtra("goalType", TaskGoal.NONE), data.getIntExtra("goalMinutes", 0)));
+            tasks.add(newTask);
+            saveToFile(TASKS_FILE, tasks);
 
-        //Add new task
-        if (requestCode == ADD_TASK_REQUEST) {
-          //Build and add new task
-          Task newTask = new Task(data.getStringExtra("name"),
-                  data.getIntExtra("color", ContextCompat.getColor(this, R.color.grey_600)),
-                  new TaskGoal(data.getIntExtra("goalType", TaskGoal.NONE), data.getIntExtra("goalMinutes", 0)));
-          tasks.add(newTask);
-          saveToFile(TASKS_FILE, tasks);
+            //Build and add new TaskView
+            addTaskView(newTask, new TaskView(this, newTask, currentFilter));
 
-          //Build and add new TaskView
-          TaskView newView = new TaskView(this, newTask, currentFilter);
-          taskViews.add(newView);
-          ((LinearLayout)findViewById(R.id.layout_scroll_main)).addView(newView);
+            //There is at least one task now, so show log button
+            logButton.setVisibility(View.VISIBLE);
+            break;
 
-          //There is at least one task now, so show log button
-          logButton.setVisibility(View.VISIBLE);
-        } else
-          //Log time for a task
-          if (requestCode == LOG_TIME_REQUEST){
-            //Find the task, date, and time
+          //Log time
+          case LOG_TIME_REQUEST:
+            //Get the task, date, and time
             Task task = (Task)data.getSerializableExtra("task");
             Date date = new Date(data.getLongExtra("dateMillis", System.currentTimeMillis()));
             int duration = data.getIntExtra("time", 0);
 
-            //Make the entry and associate it with task
-            task.addEntry(new TaskEntry(task, date, duration));
+            //Add time to task
+            task.addTime(date, duration);
+
+            //Update the associated TaskView
+            TaskView view = taskViews.get(task.getName());
+            if(view == null){
+              addTaskView(task, new TaskView(this, task, currentFilter));
+            } else {
+              view.setTask(task);
+              view.update();
+            }
+            break;
         }
       }
     }
@@ -104,8 +122,19 @@ public class MainActivity extends AppCompatActivity {
 
 
   /**
+   * Adds a <code>TaskView</code> to this activity
+   * @param task The task to associate with the added view
+   * @param view The <code>TaskView</code> to add
+   */
+  private void addTaskView(Task task, TaskView view){
+    taskViews.put(task.getName(), view);
+    scrollLayout.addView(view);
+  }
+
+
+  /**
    * Opens the EditTask Activity to add a new task
-   * @param view The view that was pressed to activate this method
+   * @param view The view that was clicked to activate this method
    */
   public void openEditToAdd(View view){
     Intent openEdit = new Intent(this, EditTaskActivity.class);
@@ -118,9 +147,7 @@ public class MainActivity extends AppCompatActivity {
    */
   public void openLogActivity(Task task){
     Intent openLog = new Intent(this, LogTimeActivity.class);
-    if(task != null) {
-      openLog.putExtra("task", task);
-    }
+    openLog.putExtra("task", task);
     openLog.putExtra("tasks", tasks);
     startActivityForResult(openLog, LOG_TIME_REQUEST);
   }

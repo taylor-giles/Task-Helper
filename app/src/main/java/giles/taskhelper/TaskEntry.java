@@ -41,7 +41,7 @@ public class TaskEntry implements Serializable {
         this.date = date;
     }
 
-    public long getDuration() {
+    public int getDuration() {
         return duration;
     }
 

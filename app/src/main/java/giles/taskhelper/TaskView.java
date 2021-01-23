@@ -17,6 +17,7 @@ import com.github.mikephil.charting.data.BarDataSet;
 import com.github.mikephil.charting.data.BarEntry;
 import com.github.mikephil.charting.formatter.ValueFormatter;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
@@ -99,6 +100,8 @@ public class TaskView extends LinearLayout {
         Calendar cal = new GregorianCalendar();
         cal.setTime(filter.getDates().get((int)value));
         StringBuilder output = new StringBuilder();
+
+        //Get day of week
         switch(cal.get(Calendar.DAY_OF_WEEK)){
           case Calendar.SUNDAY: output.append("Sun, "); break;
           case Calendar.MONDAY: output.append("Mon, "); break;
@@ -108,6 +111,8 @@ public class TaskView extends LinearLayout {
           case Calendar.FRIDAY: output.append("Fri, "); break;
           case Calendar.SATURDAY: output.append("Sat, "); break;
         }
+
+        //Construct MM/DD/YY date string
         output.append(cal.get(Calendar.MONTH) + 1);
         output.append("/");
         output.append(cal.get(Calendar.DATE));
@@ -133,6 +138,7 @@ public class TaskView extends LinearLayout {
       }
     });
     barChart.getAxisLeft().setAxisMinimum(0);
+    invalidate();
   }
 
   public TimeFilter getFilter() {
@@ -146,6 +152,11 @@ public class TaskView extends LinearLayout {
 
   public Task getTask(){
     return task;
+  }
+
+  public void setTask(Task task){
+    this.task = task;
+    header.setTask(task);
   }
 
 

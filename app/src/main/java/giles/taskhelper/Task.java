@@ -5,6 +5,7 @@ import android.support.annotation.Nullable;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 public class Task implements Serializable {
@@ -114,6 +115,11 @@ public class Task implements Serializable {
   }
 
 
+  /**
+   * Two tasks are equal if their names and colors are equal
+   * @param obj The object to test for equality with this <code>Task</code>
+   * @return <code>true</code> iff this <code>Task</code> is equal to the given <code>Object</code>
+   */
   @Override
   public boolean equals(@Nullable Object obj) {
     return obj instanceof Task &&
