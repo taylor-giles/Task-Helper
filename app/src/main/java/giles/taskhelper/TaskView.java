@@ -6,6 +6,7 @@ import android.content.Context;
 import android.support.v4.content.ContextCompat;
 import android.view.Gravity;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.Space;
@@ -50,15 +51,19 @@ public class TaskView extends LinearLayout {
     barChart = new BarChart(context);
     barChart.setLayoutParams(new LayoutParams(LayoutParams.MATCH_PARENT, 800));
 
-    Space space = new Space(context);
-    space.setLayoutParams(new LayoutParams(LayoutParams.MATCH_PARENT, 50));
+    Space spaceAbove = new Space(context);
+    spaceAbove.setLayoutParams(new LayoutParams(0, 50));
 
     View divider = new View(context);
     divider.setLayoutParams(new LayoutParams(LayoutParams.MATCH_PARENT, 1));
     divider.setBackgroundColor(ContextCompat.getColor(context, android.R.color.darker_gray));
 
-    expandedContent.addView(space);
+    Space spaceBelow = new Space(context);
+    spaceBelow.setLayoutParams(new LayoutParams(LayoutParams.MATCH_PARENT, 100));
+
+    expandedContent.addView(spaceAbove);
     expandedContent.addView(barChart);
+    expandedContent.addView(spaceBelow);
 
     collapse();
     update();
@@ -138,6 +143,7 @@ public class TaskView extends LinearLayout {
       }
     });
     barChart.getAxisLeft().setAxisMinimum(0);
+    barChart.invalidate();
     invalidate();
   }
 
@@ -157,6 +163,15 @@ public class TaskView extends LinearLayout {
   public void setTask(Task task){
     this.task = task;
     header.setTask(task);
+  }
+
+
+  /**
+   * Determines the height of the view when it is expanded
+   * @return The expanded height
+   */
+  public int getExpandedHeight(){
+    return expandedContent.getHeight() + header.getHeight();
   }
 
 

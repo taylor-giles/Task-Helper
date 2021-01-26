@@ -11,4 +11,23 @@
     <string name="label_task_name">Task Name:</string>
     <string name="finish">Finish</string>
     <string name="date">Date</string>
+
+    <string name="motivator_best1">Outstanding!</string>
+    <string name="motivator_best2">Excellent work!</string>
+    <string name="motivator_best3">Amazing job!</string>
+    <string name="motivator_better1">Great job!</string>
+    <string name="motivator_better2">So close, great work!</string>
+    <string name="motivator_better3">Superbly done!</string>
+    <string name="motivator_good1">Nicely done!</string>
+    <string name="motivator_good2">Good job!</string>
+    <string name="motivator_good3">Almost there, good work!</string>
+    <string name="motivator_bad1">Needs work…</string>
+    <string name="motivator_bad2">Not quite there.</string>
+    <string name="motivator_bad3">Not so good this time.</string>
+    <string name="motivator_ongoing_good">Almost there, keep it up!</string>
+    <string name="motivator_ongoing_neutral1">Keep going!</string>
+    <string name="motivator_ongoing_neutral2">Keep it up!</string>
+    <string name="motivator_ongoing_better">Great work so far!</string>
+    <string name="motivator_ongoing_bad">Good start, keep it up!</string>
+    <string name="motivator_none">No goals set.</string>
 </resources>

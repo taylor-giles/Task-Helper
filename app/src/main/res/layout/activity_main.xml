@@ -45,7 +45,7 @@
                 android:layout_height="match_parent"
                 android:backgroundTint="@android:color/transparent"
                 android:contentDescription="Log time"
-                app:srcCompat="@drawable/ic_schedule_white_24dp" />
+                app:srcCompat="@drawable/ic_add_alarm_white_24dp" />
 
             <ImageButton
                 android:id="@+id/button_add"
@@ -169,8 +169,7 @@
 
             <Space
                 android:layout_width="match_parent"
-                android:layout_height="10dp"
-                android:layout_weight="1" />
+                android:layout_height="20dp" />
 
             <View
                 android:id="@+id/divider"
@@ -180,8 +179,30 @@
 
             <Space
                 android:layout_width="match_parent"
-                android:layout_height="10dp"
-                android:layout_weight="1" />
+                android:layout_height="20dp" />
+
+            <com.github.mikephil.charting.charts.PieChart
+                android:id="@+id/pie_chart"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_weight="1">
+
+            </com.github.mikephil.charting.charts.PieChart>
+
+            <Space
+                android:layout_width="match_parent"
+                android:layout_height="20dp" />
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:background="?android:attr/listDivider"
+                android:paddingTop="10dp"
+                android:paddingBottom="10dp" />
+
+            <Space
+                android:layout_width="match_parent"
+                android:layout_height="20dp" />
 
             <com.github.mikephil.charting.charts.LineChart
                 android:id="@+id/line_chart"
@@ -191,13 +212,9 @@
 
             </com.github.mikephil.charting.charts.LineChart>
 
-            <com.github.mikephil.charting.charts.PieChart
-                android:id="@+id/pie_chart"
+            <Space
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_weight="1">
-
-            </com.github.mikephil.charting.charts.PieChart>
+                android:layout_height="20dp" />
 
         </LinearLayout>
     </ScrollView>

@@ -1,5 +1,8 @@
 package giles.taskhelper;
 
+import android.support.v7.widget.MenuItemHoverListener;
+import android.util.Log;
+
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -35,10 +38,18 @@ public class TimeFilter implements Predicate<TaskEntry>, Serializable {
    * @param numDays The number days into the past that this filter should span, including today
    */
   public TimeFilter(int numDays){
-    //Set latest to this time tomorrow (to include all of today)
-    this.latest = new Date(System.currentTimeMillis() + MILLIS_IN_DAY);
+    //Set latest to 11:59:59.999 PM today (to include all of today)
+    this.latest = new Date(System.currentTimeMillis() - (System.currentTimeMillis() % MILLIS_IN_DAY) - 1 + MILLIS_IN_DAY);
+    Calendar latestCal = new GregorianCalendar();
+    latestCal.setTime(new Date(System.currentTimeMillis()));
+    latestCal.set(Calendar.HOUR_OF_DAY, 23);
+    latestCal.set(Calendar.MINUTE, 59);
+    latestCal.set(Calendar.SECOND, 59);
+    latestCal.set(Calendar.MILLISECOND, 999);
+    this.latest = latestCal.getTime();
+    Log.d("log", latest.toString());
 
-    //Set earliest to midnight on desired day
+    //Set earliest to 12:00:00.001 AM on desired day
     if(numDays == ALL_TIME){
       this.earliest = new Date(0);
     } else if(numDays > 0){

@@ -114,6 +114,8 @@ public class Task implements Serializable {
     entries.add(entry);
   }
 
+  //TODO goal met
+
 
   /**
    * Two tasks are equal if their names and colors are equal

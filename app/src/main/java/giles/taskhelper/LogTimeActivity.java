@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
@@ -35,19 +36,20 @@ public class LogTimeActivity extends AppCompatActivity implements DatePickerDial
 
     //Set up spinner
     spinner = findViewById(R.id.spinner_task_log);
-    ArrayList<Task> allTasks = (ArrayList<Task>)getIntent().getSerializableExtra("tasks");
-    ArrayList<String> taskNames = new ArrayList<>();
-    for(Task task : allTasks){
-      taskNames.add(task.getName());
-    }
+    String[] taskNames = getIntent().getStringArrayExtra("taskNames");
     ArrayAdapter<String> adapter = new ArrayAdapter<>(this,
             android.R.layout.simple_spinner_dropdown_item, taskNames);
     spinner.setAdapter(adapter);
 
     //Auto-fill spinner if task is given
-    Task task = (Task)getIntent().getSerializableExtra("task");
-    if(task != null){
-      spinner.setSelection(taskNames.indexOf(task.getName()));
+    String taskName = getIntent().getStringExtra("taskName");
+    if(taskName != null) {
+      for (int i = 0; i < taskNames.length; i++) {
+        if (taskNames[i].equals(taskName)) {
+          spinner.setSelection(i);
+          break;
+        }
+      }
     }
 
     //Set up dateMillis selection
@@ -66,18 +68,10 @@ public class LogTimeActivity extends AppCompatActivity implements DatePickerDial
     Button doneButton = findViewById(R.id.button_log_finish);
     doneButton.setOnClickListener(v -> {
       Intent returnIntent = new Intent();
-      Task chosenTask = null;
-
-      //Get task
-      String taskName = taskNames.get(spinner.getSelectedItemPosition());
-      for(Task t : allTasks){
-        if(t.getName().equals(taskName)){
-          chosenTask = t;
-        }
-      }
 
       //Set return data
-      returnIntent.putExtra("task", chosenTask);
+      Log.d("log", taskNames[spinner.getSelectedItemPosition()]);
+      returnIntent.putExtra("taskName", taskNames[spinner.getSelectedItemPosition()]);
       returnIntent.putExtra("dateMillis", dateMillis);
       returnIntent.putExtra("time", timeSelector.getHours() * 60 + timeSelector.getMinutes());
 
