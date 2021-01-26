@@ -2,6 +2,9 @@ package giles.taskhelper;
 
 import java.io.Serializable;
 
+/**
+ * A class to represent a goal associated with a task
+ */
 public class TaskGoal implements Serializable {
   public static final int NONE = 0;
   public static final int MORE = 1;

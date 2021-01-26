@@ -41,6 +41,7 @@ import java.util.GregorianCalendar;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.Random;
 
 public class MainActivity extends AppCompatActivity {
   //Files
@@ -137,6 +138,8 @@ public class MainActivity extends AppCompatActivity {
 
             //There is at least one task now, so show log button
             logButton.setVisibility(View.VISIBLE);
+
+            updateOverview();
             break;
 
           //Log time
@@ -284,7 +287,6 @@ public class MainActivity extends AppCompatActivity {
   private void updateOverview(){
     //Update the total time display
     int sum = 0;
-    int goalsMet = 0;
     for(Task t : tasks){
       sum += t.getTimeSpent(currentFilter);
     }
@@ -481,9 +483,35 @@ public class MainActivity extends AppCompatActivity {
 
 
   /**
-   * Changes the text of the motivator to reflect user goal data
+   * Chooses a motivator and displays it based on the percentage of
+   * the time towards their goals the user has completed, with random behavior.
    */
-  private void updateMotivator(){
+  private void updateMotivator() {
+    final int NUM_CATEGORIES = 4;
+    final int NUM_IN_EACH = 3;
+    final String[][] MOTIVATORS = new String[][]{
+            {getString(R.string.motivator_best1),
+                    getString(R.string.motivator_best2),
+                    getString(R.string.motivator_best3)},
+            {getString(R.string.motivator_better1),
+                    getString(R.string.motivator_better2),
+                    getString(R.string.motivator_better3)},
+            {getString(R.string.motivator_good1),
+                    getString(R.string.motivator_good2),
+                    getString(R.string.motivator_good3)},
+            {getString(R.string.motivator_bad1),
+                    getString(R.string.motivator_bad2),
+                    getString(R.string.motivator_bad3)}
+    };
+    final String[] ONGOING_MOTIVATORS = new String[]{
+            getString(R.string.motivator_ongoing_good),
+            getString(R.string.motivator_ongoing_better),
+            getString(R.string.motivator_ongoing_neutral1),
+            getString(R.string.motivator_ongoing_neutral2),
+            getString(R.string.motivator_ongoing_bad)
+    };
+    final double INCREMENT_VAL = 1 / (double)NUM_CATEGORIES;
+
     int allGoals = 0;
     for(Task t : tasks){
       if(t.getGoal().getType() != TaskGoal.NONE){
@@ -499,9 +527,21 @@ public class MainActivity extends AppCompatActivity {
         totalTimeToMeet += t.getGoal().minsToMeet(t.getTimeSpent(currentFilter));
         totalTimeOfGoals += t.getGoal().getMinutes();
       }
-      double random = Math.random();
       double percentMet = totalTimeToMeet / totalTimeOfGoals;
 
+      //Get normally distributed sample with sigma = halfway between categories, mean = percentMet
+      double normalDist = new Random().nextGaussian() * (INCREMENT_VAL / 2) + percentMet;
+      int random = new Random().nextInt(NUM_IN_EACH);
+
+      //Decide on and show a motivator
+      int c = 0;
+      for(double i = 1; i > 0; i-=INCREMENT_VAL){
+        //If the normal dist val is (the center val for this motivator category)+/-(INCREMENT_VAL/2), use this category
+        if (normalDist > (INCREMENT_VAL - (INCREMENT_VAL / 2)) && normalDist < (INCREMENT_VAL + (INCREMENT_VAL / 2))) {
+          motivatorView.setText(MOTIVATORS[c][random]);
+        }
+        c++;
+      }
     }
   }
 }
