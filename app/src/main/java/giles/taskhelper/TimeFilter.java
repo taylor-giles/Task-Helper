@@ -1,6 +1,5 @@
 package giles.taskhelper;
 
-import android.support.v7.widget.MenuItemHoverListener;
 import android.util.Log;
 
 import java.io.Serializable;
@@ -17,8 +16,8 @@ import java.util.function.Predicate;
 public class TimeFilter implements Predicate<TaskEntry>, Serializable {
   public static final int ALL_TIME = -1;
   public static final int TODAY = 0;
-  public static final int ONE_WEEK = 7;
-  public static final int TWO_WEEKS = 14;
+  public static final int ONE_WEEK = 6;
+  public static final int TWO_WEEKS = 13;
   private static final long MILLIS_IN_DAY = 86400000;
   private Date earliest;
   private Date latest;
@@ -52,7 +51,7 @@ public class TimeFilter implements Predicate<TaskEntry>, Serializable {
     //Set earliest to 12:00:00.001 AM on desired day
     if(numDays == ALL_TIME){
       this.earliest = new Date(0);
-    } else if(numDays > 0){
+    } else if(numDays >= 0){
       Calendar midnightEarliest = new GregorianCalendar();
       midnightEarliest.setTime(new Date(System.currentTimeMillis() - (numDays * MILLIS_IN_DAY)));
       midnightEarliest.set(Calendar.HOUR_OF_DAY, 0);
@@ -94,5 +93,14 @@ public class TimeFilter implements Predicate<TaskEntry>, Serializable {
       temp.setTime(temp.getTime() + MILLIS_IN_DAY);
     }
     return output;
+  }
+
+
+  /**
+   * Gets the current date, in the same format as other TimeFilters will have it
+   * @return A <code>Date</code> representing the current day at 12:00:00.001
+   */
+  public static Date getToday(){
+    return (new TimeFilter(TODAY).getDates().get(0));
   }
 }

@@ -11,6 +11,18 @@
     <string name="label_task_name">Task Name:</string>
     <string name="finish">Finish</string>
     <string name="date">Date</string>
+    <string name="end_date">Choose End Date</string>
+    <string name="start_date">Choose Start Date</string>
+
+    <string name="default_date_picker_title">Choose Date</string>
+
+    <string name="today">Today</string>
+    <string name="one_week">Past One Week</string>
+    <string name="two_weeks">Past Two Weeks</string>
+    <string name="four_weeks">Past Four Weeks</string>
+    <string name="one_year">Past One Year</string>
+    <string name="all_time">All Time</string>
+    <string name="custom_filter">Custom…</string>
 
     <string name="motivator_best1">Outstanding!</string>
     <string name="motivator_best2">Excellent work!</string>
@@ -21,13 +33,20 @@
     <string name="motivator_good1">Nicely done!</string>
     <string name="motivator_good2">Good job!</string>
     <string name="motivator_good3">Almost there, good work!</string>
-    <string name="motivator_bad1">Needs work…</string>
-    <string name="motivator_bad2">Not quite there.</string>
-    <string name="motivator_bad3">Not so good this time.</string>
-    <string name="motivator_ongoing_good">Almost there, keep it up!</string>
+    <string name="motivator_bad1">Getting there</string>
+    <string name="motivator_bad2">Not too hot this time</string>
+    <string name="motivator_bad3">Not so good</string>
+    <string name="motivator_ongoing_best1">Outstanding!</string>
+    <string name="motivator_ongoing_best2">Excellent work!</string>
+    <string name="motivator_ongoing_best3">Incredible!</string>
+    <string name="motivator_ongoing_good1">Almost there, keep it up!</string>
+    <string name="motivator_ongoing_good2">Looking good!</string>
+    <string name="motivator_ongoing_good3">Nearly perfect!</string>
     <string name="motivator_ongoing_neutral1">Keep going!</string>
     <string name="motivator_ongoing_neutral2">Keep it up!</string>
-    <string name="motivator_ongoing_better">Great work so far!</string>
-    <string name="motivator_ongoing_bad">Good start, keep it up!</string>
-    <string name="motivator_none">No goals set.</string>
+    <string name="motivator_ongoing_neutral3">Great work so far!</string>
+    <string name="motivator_ongoing_bad1">Good start, keep it up!</string>
+    <string name="motivator_ongoing_bad2">Nice start!</string>
+    <string name="motivator_ongoing_bad3">Starting off great!</string>
+    <string name="motivator_none">Welcome!</string>
 </resources>

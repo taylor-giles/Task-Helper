@@ -9,14 +9,12 @@ import android.support.v7.app.AppCompatDialogFragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.CalendarView;
-import android.widget.Toast;
 
 import java.util.Calendar;
-import java.util.Date;
-import java.util.GregorianCalendar;
 
 public class DatePickerDialog extends AppCompatDialogFragment {
-  DatePickerDialogListener listener;
+  private DatePickerDialogListener listener;
+  private String title;
 
   @Override @NonNull
   public Dialog onCreateDialog(Bundle savedInstanceState){
@@ -33,13 +31,15 @@ public class DatePickerDialog extends AppCompatDialogFragment {
     });
     if (getArguments() != null) {
       calendarView.setDate(getArguments().getLong("date"));
+      title = getArguments().getString("title");
     } else {
       calendarView.setDate(System.currentTimeMillis());
+      title = getString(R.string.default_date_picker_title);
     }
 
     //Set up dialog
     builder.setView(view)
-            .setTitle("Choose Date")
+            .setTitle(title)
             .setNegativeButton("Cancel", (dialog, which) -> {
               //Do nothing (cancel)
             })
@@ -61,8 +61,13 @@ public class DatePickerDialog extends AppCompatDialogFragment {
   }
 
   static public DatePickerDialog newInstance(long date){
+    return newInstance(date, "");
+  }
+
+  static public DatePickerDialog newInstance(long date, String title){
     DatePickerDialog dialog = new DatePickerDialog();
     Bundle args = new Bundle();
+    args.putString("title", title);
     args.putLong("date", date);
     dialog.setArguments(args);
     return dialog;

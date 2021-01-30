@@ -92,67 +92,6 @@
                 android:paddingEnd="30dp" />
 
             <LinearLayout
-                android:id="@+id/layout_goal"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:gravity="center"
-                android:orientation="vertical"
-                android:paddingTop="16dp"
-                android:paddingBottom="16dp">
-
-                <TextView
-                    android:id="@+id/label_weekly_goal"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text="@string/label_weekly_goal"
-                    android:textColor="@android:color/black"
-                    android:textSize="18sp" />
-
-                <RadioGroup
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:paddingTop="8dp">
-
-                    <RadioButton
-                        android:id="@+id/radio_greater"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:text="More than..." />
-
-                    <RadioButton
-                        android:id="@+id/radio_less"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:text="Less than..." />
-
-                    <RadioButton
-                        android:id="@+id/radio_no_goal"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:checked="true"
-                        android:text="No goal" />
-                </RadioGroup>
-
-                <giles.taskhelper.TimeSelectionLayout
-                    android:id="@+id/time_selection_edit"
-                    android:layout_width="wrap_content"
-                    android:layout_height="match_parent">
-
-                </giles.taskhelper.TimeSelectionLayout>
-            </LinearLayout>
-
-            <View
-                android:id="@+id/divider4"
-                android:layout_width="match_parent"
-                android:layout_height="1dp"
-                android:background="?attr/colorButtonNormal"
-                android:paddingStart="30dp"
-                android:paddingEnd="30dp" />
-
-            <LinearLayout
                 android:id="@+id/layout_color"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
@@ -169,9 +108,33 @@
 
                 <Space
                     android:layout_width="match_parent"
-                    android:layout_height="10dp" />
+                    android:layout_height="15dp" />
 
             </LinearLayout>
+
+            <View
+                android:id="@+id/divider4"
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:background="?attr/colorButtonNormal"
+                android:paddingStart="30dp"
+                android:paddingEnd="30dp" />
+
+            <LinearLayout
+                android:id="@+id/layout_goals"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"/>
+
+            <Button
+                android:id="@+id/button_add_goal"
+                style="@style/Widget.MaterialComponents.Button.TextButton"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="+ Add Goal"
+                android:textAlignment="textStart"
+                android:textSize="18sp" />
+
         </LinearLayout>
     </ScrollView>
 

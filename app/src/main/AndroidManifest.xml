@@ -11,6 +11,9 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme"
         tools:ignore="GoogleAppIndexingWarning">
+        <activity android:name=".FilterPickerActivity"
+            android:excludeFromRecents="true"
+            android:theme="@style/Base.Theme.AppCompat.Light.Dialog" />
         <activity android:name=".EditTaskActivity" />
         <activity android:name=".SettingsActivity" />
         <activity android:name=".MainActivity">
@@ -20,9 +23,10 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name= ".LogTimeActivity"
-            android:theme="@style/Base.Theme.AppCompat.Light.Dialog"
-            android:excludeFromRecents="true"/>
+        <activity
+            android:name=".LogTimeActivity"
+            android:excludeFromRecents="true"
+            android:theme="@style/Base.Theme.AppCompat.Light.Dialog" />
     </application>
 
 </manifest>

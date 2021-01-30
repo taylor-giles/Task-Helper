@@ -12,21 +12,21 @@ public class Task implements Serializable {
   private String name;
   private int color;
   private ArrayList<TaskEntry> entries;
-  private TaskGoal goal;
+  private ArrayList<TaskGoal> goals;
 
   /**
    * Constructors
    */
   public Task(String name, int color){
-    this(name, color, new TaskGoal(), new ArrayList<>());
+    this(name, color, new ArrayList<>(), new ArrayList<>());
   }
-  public Task(String name, int color, TaskGoal goal){
-    this(name, color, goal, new ArrayList<>());
+  public Task(String name, int color, ArrayList<TaskGoal> goals){
+    this(name, color, goals, new ArrayList<>());
   }
-  public Task(String name, int color, TaskGoal goal, ArrayList<TaskEntry> entries){
+  public Task(String name, int color, ArrayList<TaskGoal> goals, ArrayList<TaskEntry> entries){
     this.name = name;
     this.color = color;
-    this.goal = goal;
+    this.goals = goals;
     this.entries = new ArrayList<>(entries);
   }
 
@@ -114,7 +114,30 @@ public class Task implements Serializable {
     entries.add(entry);
   }
 
-  //TODO goal met
+
+  /**
+   * Adds a new <code>TaskGoal</code> to be associated with this <code>Task</code>
+   * @param goal The <code>TaskGoal</code> to add to this task
+   */
+  public void addGoal(TaskGoal goal){
+    this.goals.add(goal);
+  }
+
+
+  /**
+   * Determines which goals associated with this <code>Task</code> apply on the given <code>Date</code>.
+   * @param date The <code>Date</code> of interest
+   * @return A list of this task's <code>TaskGoal</code>s that apply on the given date
+   */
+  public ArrayList<TaskGoal> getGoals(Date date){
+    ArrayList<TaskGoal> output = new ArrayList<>();
+    for(TaskGoal goal : goals){
+      if(goal.checkDate(date)){
+        output.add(goal);
+      }
+    }
+    return output;
+  }
 
 
   /**
@@ -128,6 +151,7 @@ public class Task implements Serializable {
             ((this.name.equals(((Task) obj).getName())) &&
                     (this.color == ((Task) obj).getColor()));
   }
+
 
   //Getters and setters
   public ArrayList<TaskEntry> getAllEntries() {
@@ -148,10 +172,10 @@ public class Task implements Serializable {
   public void setColor(int color) {
     this.color = color;
   }
-  public TaskGoal getGoal() {
-    return goal;
+  public ArrayList<TaskGoal> getAllGoals() {
+    return goals;
   }
-  public void setGoal(TaskGoal goal) {
-    this.goal = goal;
+  public void setGoal(ArrayList<TaskGoal> goals) {
+    this.goals = goals;
   }
 }

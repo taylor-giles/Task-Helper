@@ -7,11 +7,15 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.View;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.LinearLayout.LayoutParams;
 import android.widget.ScrollView;
+import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -44,13 +48,15 @@ import java.util.Map;
 import java.util.Random;
 
 public class MainActivity extends AppCompatActivity {
-  //Files
+  //Data storage info
   private static final String TASKS_FILE = "tasks.obj";
+  private static final String VERSION = "0.0.0";
 
   //Request codes
   public static final int ADD_TASK_REQUEST = 1;
   public static final int EDIT_TASK_REQUEST = 2;
   public static final int LOG_TIME_REQUEST = 3;
+  public static final int CUSTOM_FILTER_REQUEST = 4;
 
   //Data
   private ArrayList<Task> tasks = new ArrayList<>(); //Necessary for reading/writing files
@@ -67,12 +73,15 @@ public class MainActivity extends AppCompatActivity {
   private TextView totalTimeView;
   private TextView goalsMetView;
   private TextView motivatorView;
+  private Spinner filterSpinner;
 
   @Override
   protected void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
     setContentView(R.layout.activity_main);
     setVisible(true);
+
+    //Views
     scrollLayout = findViewById(R.id.layout_scroll_main);
     scrollView = findViewById(R.id.scroll_main);
     lineChart = findViewById(R.id.line_chart);
@@ -81,6 +90,7 @@ public class MainActivity extends AppCompatActivity {
     totalTimeView = findViewById(R.id.text_time_spent);
     goalsMetView = findViewById(R.id.text_goals);
     motivatorView = findViewById(R.id.text_motivator);
+    filterSpinner = findViewById(R.id.spinner_filter);
 
     //Set up tasks and TaskViews
     tasks = loadTasks();
@@ -95,6 +105,52 @@ public class MainActivity extends AppCompatActivity {
     if(tasks.isEmpty()){
       logButton.setVisibility(View.GONE);
     }
+
+    //Set up filter spinner
+    filterSpinner = findViewById(R.id.spinner_filter);
+    String[] filterOptions = new String[]{getString(R.string.today),
+            getString(R.string.one_week), getString(R.string.two_weeks), getString(R.string.four_weeks),
+            getString(R.string.one_year), getString(R.string.custom_filter)
+    };
+    ArrayAdapter<String> adapter = new ArrayAdapter<>(this,
+            android.R.layout.simple_spinner_dropdown_item, filterOptions);
+    filterSpinner.setAdapter(adapter);
+    filterSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+      @Override
+      public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+        String selected = (String)parent.getItemAtPosition(position);
+        if(selected.equals(getString(R.string.custom_filter))){
+          //Open filter picker dialog
+          ArrayList<Date> currentDates = currentFilter.getDates();
+          Intent intent = new Intent(view.getContext(), FilterPickerActivity.class);
+          intent.putExtra("startMillis", currentDates.get(0).getTime());
+          intent.putExtra("endMillis", currentDates.get(currentDates.size() - 1).getTime());
+          startActivityForResult(intent, CUSTOM_FILTER_REQUEST);
+        } else {
+          //Presets
+          if(selected.equals(getString(R.string.today))){
+            currentFilter = new TimeFilter(TimeFilter.TODAY);
+          } else if(selected.equals(getString(R.string.one_week))){
+            currentFilter = new TimeFilter(TimeFilter.ONE_WEEK);
+          } else if(selected.equals(getString(R.string.two_weeks))){
+            currentFilter = new TimeFilter(TimeFilter.TWO_WEEKS);
+          } else if(selected.equals(getString(R.string.four_weeks))){
+            currentFilter = new TimeFilter(27);
+          } else if(selected.equals(getString(R.string.one_year))){
+            currentFilter = new TimeFilter(364);
+          } else if(selected.equals(getString(R.string.all_time))){
+            currentFilter = new TimeFilter(TimeFilter.ALL_TIME);
+          }
+        }
+        updateOverview();
+      }
+
+      @Override
+      public void onNothingSelected(AdapterView<?> parent) {
+        //Do nothing
+      }
+    });
+    filterSpinner.setSelection(adapter.getPosition(getString(R.string.one_week)));
 
     //Initialize charts
     lineChart.getDescription().setEnabled(false);
@@ -126,10 +182,8 @@ public class MainActivity extends AppCompatActivity {
         switch(requestCode){
           //Add new task
           case ADD_TASK_REQUEST:
-            //Build and add new task
-            Task newTask = new Task(data.getStringExtra("name"),
-                    data.getIntExtra("color", ContextCompat.getColor(this, R.color.grey_600)),
-                    new TaskGoal(data.getIntExtra("goalType", TaskGoal.NONE), data.getIntExtra("goalMinutes", 0)));
+            //Get and add new task
+            Task newTask = (Task)data.getSerializableExtra("task");
             tasks.add(newTask);
             saveToFile(TASKS_FILE, tasks);
 
@@ -138,8 +192,6 @@ public class MainActivity extends AppCompatActivity {
 
             //There is at least one task now, so show log button
             logButton.setVisibility(View.VISIBLE);
-
-            updateOverview();
             break;
 
           //Log time
@@ -168,9 +220,18 @@ public class MainActivity extends AppCompatActivity {
               view.update();
             }
             saveToFile(TASKS_FILE, tasks);
-            updateOverview();
             break;
+
+          //Custom filter
+          case CUSTOM_FILTER_REQUEST:
+            currentFilter = new TimeFilter(
+                    new Date(data.getLongExtra("startMillis", System.currentTimeMillis())),
+                    new Date(data.getLongExtra("endMillis", System.currentTimeMillis())));
+            for(TaskView v : taskViews.values()){
+              v.update();
+            }
         }
+        updateOverview();
       }
     }
   }
@@ -297,11 +358,15 @@ public class MainActivity extends AppCompatActivity {
     averageTimeView.setText((avg / 60) + "h " + (avg % 60) + "m per day");
 
     //Update charts
-    updateLineChart();
     updatePieChart();
+    if(pieChart.isEmpty() || currentFilter.getDates().size() <= 1) {
+      lineChart.clear();
+    } else {
+      updateLineChart();
+    }
 
-    //Update motivator
-    updateMotivator();
+    //Update motivator and goal view
+    updateGoalViews();
   }
 
 
@@ -434,28 +499,46 @@ public class MainActivity extends AppCompatActivity {
     lineChart.getXAxis().setValueFormatter(new ValueFormatter() {
       @Override
       public String getFormattedValue(float value) {
-        Calendar cal = new GregorianCalendar();
-        cal.setTime((currentFilter.getDates().get((int)value)));
-        StringBuilder output = new StringBuilder();
+        if(value < currentFilter.getDates().size()) {
+          Calendar cal = new GregorianCalendar();
+          cal.setTime((currentFilter.getDates().get((int) value)));
+          StringBuilder output = new StringBuilder();
 
-        //Get day of week
-        switch(cal.get(Calendar.DAY_OF_WEEK)){
-          case Calendar.SUNDAY: output.append("Sun, "); break;
-          case Calendar.MONDAY: output.append("Mon, "); break;
-          case Calendar.TUESDAY: output.append("Tue, "); break;
-          case Calendar.WEDNESDAY: output.append("Wed, "); break;
-          case Calendar.THURSDAY: output.append("Thu, "); break;
-          case Calendar.FRIDAY: output.append("Fri, "); break;
-          case Calendar.SATURDAY: output.append("Sat, "); break;
+          //Get day of week
+          switch (cal.get(Calendar.DAY_OF_WEEK)) {
+            case Calendar.SUNDAY:
+              output.append("Sun, ");
+              break;
+            case Calendar.MONDAY:
+              output.append("Mon, ");
+              break;
+            case Calendar.TUESDAY:
+              output.append("Tue, ");
+              break;
+            case Calendar.WEDNESDAY:
+              output.append("Wed, ");
+              break;
+            case Calendar.THURSDAY:
+              output.append("Thu, ");
+              break;
+            case Calendar.FRIDAY:
+              output.append("Fri, ");
+              break;
+            case Calendar.SATURDAY:
+              output.append("Sat, ");
+              break;
+          }
+
+          //Construct MM/DD/YY date string
+          output.append(cal.get(Calendar.MONTH) + 1);
+          output.append("/");
+          output.append(cal.get(Calendar.DATE));
+          output.append("/");
+          output.append(("" + cal.get(Calendar.YEAR)).substring(2));
+          return output.toString();
+        } else {
+          return "";
         }
-
-        //Construct MM/DD/YY date string
-        output.append(cal.get(Calendar.MONTH) + 1);
-        output.append("/");
-        output.append(cal.get(Calendar.DATE));
-        output.append("/");
-        output.append(("" + cal.get(Calendar.YEAR)).substring(2));
-        return output.toString();
       }
     });
 
@@ -485,10 +568,13 @@ public class MainActivity extends AppCompatActivity {
   /**
    * Chooses a motivator and displays it based on the percentage of
    * the time towards their goals the user has completed, with random behavior.
+   * Also updates the number and percentage of completed goals displayed in the stats view.
    */
-  private void updateMotivator() {
-    final int NUM_CATEGORIES = 4;
-    final int NUM_IN_EACH = 3;
+  private void updateGoalViews() {
+    //The probability that, if the current filter contains the current date, an ongoing motivator will be chosen
+    final double ONGOING_PROB = 0.8;
+
+    //Motivators
     final String[][] MOTIVATORS = new String[][]{
             {getString(R.string.motivator_best1),
                     getString(R.string.motivator_best2),
@@ -503,43 +589,79 @@ public class MainActivity extends AppCompatActivity {
                     getString(R.string.motivator_bad2),
                     getString(R.string.motivator_bad3)}
     };
-    final String[] ONGOING_MOTIVATORS = new String[]{
-            getString(R.string.motivator_ongoing_good),
-            getString(R.string.motivator_ongoing_better),
-            getString(R.string.motivator_ongoing_neutral1),
-            getString(R.string.motivator_ongoing_neutral2),
-            getString(R.string.motivator_ongoing_bad)
+    final String[][] ONGOING_MOTIVATORS = new String[][]{
+            {getString(R.string.motivator_ongoing_best1),
+                    getString(R.string.motivator_ongoing_best2),
+                    getString(R.string.motivator_ongoing_best3)},
+            {getString(R.string.motivator_ongoing_good1),
+                    getString(R.string.motivator_ongoing_good2),
+                    getString(R.string.motivator_ongoing_good3)},
+            {getString(R.string.motivator_ongoing_neutral1),
+                    getString(R.string.motivator_ongoing_neutral2),
+                    getString(R.string.motivator_ongoing_neutral3)},
+            {getString(R.string.motivator_ongoing_bad1),
+                    getString(R.string.motivator_ongoing_bad2),
+                    getString(R.string.motivator_ongoing_bad3)}
     };
-    final double INCREMENT_VAL = 1 / (double)NUM_CATEGORIES;
-
+    //Determine the number of goals
     int allGoals = 0;
     for(Task t : tasks){
-      if(t.getGoal().getType() != TaskGoal.NONE){
-        allGoals++;
+      for(Date date : currentFilter.getDates()){
+        for(TaskGoal goal : t.getGoals(date)){
+          if(goal.getType() != TaskGoal.NONE){
+            allGoals++;
+          }
+        }
       }
     }
+
+    //Determine what percentage of goal time was met
+    int goalsMet = 0;
     if(allGoals == 0){
       motivatorView.setText(getString(R.string.motivator_none));
     } else {
-      double totalTimeToMeet = 0.0;
+      double totalTimeSpentOnGoals = 0.0;
       double totalTimeOfGoals = 0.0;
       for(Task t : tasks){
-        totalTimeToMeet += t.getGoal().minsToMeet(t.getTimeSpent(currentFilter));
-        totalTimeOfGoals += t.getGoal().getMinutes();
+        for(Date date : currentFilter.getDates()){
+          for(TaskGoal goal : t.getGoals(date)){
+            if(goal.checkDate(date)) {
+              totalTimeOfGoals += goal.getMinutes();
+              if (goal.isMet(date, t.getTimeSpent(date))) {
+                //Goal was met
+                goalsMet++;
+                totalTimeSpentOnGoals += goal.getMinutes();
+              } else {
+                totalTimeSpentOnGoals += t.getTimeSpent(date);
+              }
+            }
+          }
+        }
       }
-      double percentMet = totalTimeToMeet / totalTimeOfGoals;
+      double percentMet = totalTimeSpentOnGoals / totalTimeOfGoals;
+      goalsMetView.setText(goalsMet + "/" + allGoals + " (" + Math.round(percentMet*100) + "%)");
+
+      //Determine whether or not to use ongoing motivators
+      double decideOngoing = Math.random();
+      String[][] motivators;
+      if(currentFilter.getDates().contains(TimeFilter.getToday()) && decideOngoing <= ONGOING_PROB){
+        motivators = ONGOING_MOTIVATORS;
+      } else {
+        motivators = MOTIVATORS;
+      }
+      double incrementVal = 1 / ((double)motivators.length - 1);
 
       //Get normally distributed sample with sigma = halfway between categories, mean = percentMet
-      double normalDist = new Random().nextGaussian() * (INCREMENT_VAL / 2) + percentMet;
-      int random = new Random().nextInt(NUM_IN_EACH);
+      double normalDist = (new Random().nextGaussian() * (incrementVal / 2)) + percentMet;
 
       //Decide on and show a motivator
       int c = 0;
-      for(double i = 1; i > 0; i-=INCREMENT_VAL){
-        //If the normal dist val is (the center val for this motivator category)+/-(INCREMENT_VAL/2), use this category
-        if (normalDist > (INCREMENT_VAL - (INCREMENT_VAL / 2)) && normalDist < (INCREMENT_VAL + (INCREMENT_VAL / 2))) {
-          motivatorView.setText(MOTIVATORS[c][random]);
+      for(double i = 1; i >= 0; i -= incrementVal){
+        //If the normal dist val is within (incrementVal / 2) of the current center, use this category
+        if (normalDist >= (i - (incrementVal / 2)) && normalDist < (i + (incrementVal / 2))) {
+          motivatorView.setText(motivators[c][new Random().nextInt(motivators[c].length)]);
         }
+        Log.d("log", i+"");
         c++;
       }
     }

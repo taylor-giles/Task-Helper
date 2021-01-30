@@ -48,7 +48,6 @@
         android:id="@+id/time_selection_log"
         android:layout_width="wrap_content"
         android:layout_height="160dp">
-
     </giles.taskhelper.TimeSelectionLayout>
 
     <Space

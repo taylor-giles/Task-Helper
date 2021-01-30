@@ -4,7 +4,6 @@ import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
-import android.util.Log;
 import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
@@ -70,7 +69,6 @@ public class LogTimeActivity extends AppCompatActivity implements DatePickerDial
       Intent returnIntent = new Intent();
 
       //Set return data
-      Log.d("log", taskNames[spinner.getSelectedItemPosition()]);
       returnIntent.putExtra("taskName", taskNames[spinner.getSelectedItemPosition()]);
       returnIntent.putExtra("dateMillis", dateMillis);
       returnIntent.putExtra("time", timeSelector.getHours() * 60 + timeSelector.getMinutes());
